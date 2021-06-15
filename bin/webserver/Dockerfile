@@ -1,0 +1,65 @@
+FROM php:7.4-apache
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install useful tools and install important libaries
+RUN apt-get -y update && \
+    apt-get -y --no-install-recommends install nano wget dialog && \
+    apt-get -y --no-install-recommends install zlib1g-dev libzip-dev libicu-dev && \
+    apt-get -y --no-install-recommends install --fix-missing apt-utils build-essential git curl && \ 
+    apt-get -y --no-install-recommends install --fix-missing libcurl4-openssl-dev zip openssl && \
+    apt-get -y --no-install-recommends install --fix-missing iputils-ping \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install xdebug
+RUN pecl install xdebug && \
+    docker-php-ext-enable xdebug
+
+# RUN pecl install -f xdebug \
+#     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini;
+
+# Other PHP7 Extensions
+RUN docker-php-ext-install pdo_mysql mysqli && \
+    #    docker-php-ext-install pdo_sqlite && \
+    #    docker-php-ext-install curl && \
+    #    docker-php-ext-install tokenizer && \
+    #    docker-php-ext-install json && \
+    docker-php-ext-install zip && \
+    docker-php-ext-install -j$(nproc) intl && \
+    #    docker-php-ext-install mbstring && \
+    docker-php-ext-install gettext
+
+# Install Redis
+RUN pecl install -o -f redis \
+    &&  rm -rf /tmp/pear \
+    &&  docker-php-ext-enable redis
+
+# Install Freetype 
+RUN apt-get -y update && \
+    apt-get --no-install-recommends install -y libfontconfig1 libfontconfig1-dev libfreetype6 libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+    docker-php-ext-install -j$(nproc) gd
+
+# Enable apache modules
+RUN a2enmod rewrite headers
+
+# Add local host as server name
+RUN echo "ServerName localhost" | tee /etc/apache2/conf-available/fqdn.conf && a2enconf fqdn
+
+# Install PhantomJS
+RUN cd ~ && \
+    export OPENSSL_CONF="/etc/pki/openssl10.cnf" && \
+    export PHANTOM_JS="phantomjs-2.1.1-linux-x86_64" && \
+    wget https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOM_JS.tar.bz2 && \
+    tar xvjf $PHANTOM_JS.tar.bz2 && \
+    mv $PHANTOM_JS /usr/local/share && \
+    ln -sf /usr/local/share/$PHANTOM_JS/bin/phantomjs /usr/local/bin && \
+    phantomjs --version
+
+# Cleanup
+RUN rm -rf /usr/src/*
+
+# Configure volume/workdir
+WORKDIR /var/www/
