@@ -6,7 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update && \
     apt-get -y --no-install-recommends install nano wget dialog && \
     apt-get -y --no-install-recommends install zlib1g-dev libzip-dev libicu-dev && \
-    apt-get -y --no-install-recommends install --fix-missing apt-utils build-essential git curl && \ 
+    apt-get -y --no-install-recommends install --fix-missing apt-utils build-essential git curl && \
     apt-get -y --no-install-recommends install --fix-missing libcurl4-openssl-dev zip openssl && \
     apt-get -y --no-install-recommends install --fix-missing iputils-ping \
     rm -rf /var/lib/apt/lists/* && \
@@ -16,18 +16,10 @@ RUN apt-get -y update && \
 RUN pecl install xdebug && \
     docker-php-ext-enable xdebug
 
-# RUN pecl install -f xdebug \
-#     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini;
-
 # Other PHP7 Extensions
 RUN docker-php-ext-install pdo_mysql mysqli && \
-    #    docker-php-ext-install pdo_sqlite && \
-    #    docker-php-ext-install curl && \
-    #    docker-php-ext-install tokenizer && \
-    #    docker-php-ext-install json && \
     docker-php-ext-install zip && \
     docker-php-ext-install -j$(nproc) intl && \
-    #    docker-php-ext-install mbstring && \
     docker-php-ext-install gettext
 
 # Install Redis
@@ -35,7 +27,7 @@ RUN pecl install -o -f redis \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis
 
-# Install Freetype 
+# Install Freetype
 RUN apt-get -y update && \
     apt-get --no-install-recommends install -y libfontconfig1 libfontconfig1-dev libfreetype6 libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
     rm -rf /var/lib/apt/lists/* && \
