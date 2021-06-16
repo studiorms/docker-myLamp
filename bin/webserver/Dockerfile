@@ -8,7 +8,7 @@ RUN apt-get -y update && \
     apt-get -y --no-install-recommends install zlib1g-dev libzip-dev libicu-dev && \
     apt-get -y --no-install-recommends install --fix-missing apt-utils build-essential git curl && \
     apt-get -y --no-install-recommends install --fix-missing libcurl4-openssl-dev zip openssl && \
-    apt-get -y --no-install-recommends install --fix-missing iputils-ping \
+    apt-get -y --no-install-recommends install --fix-missing iputils-ping && \
     rm -rf /var/lib/apt/lists/* && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
