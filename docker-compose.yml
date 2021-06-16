@@ -8,6 +8,7 @@ services:
       XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9001 remote_enable=1
     volumes:
       - ./www/blog/:/var/www/blog/
+      - webserver_data:/var/www/sites/
       - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
       - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
       - ${LOG_DIR-./logs/apache2}:/var/log/apache2
