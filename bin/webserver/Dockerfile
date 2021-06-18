@@ -42,10 +42,13 @@ RUN apt-get -y update && \
     docker-php-ext-install -j$(nproc) gd
 
 # Other PHP7 Extensions
-RUN docker-php-ext-install pdo_mysql bcmath xml && \
+RUN docker-php-ext-install pdo pdo_mysql bcmath xml && \
     docker-php-ext-install zip && \
     docker-php-ext-install -j$(nproc) intl && \
     docker-php-ext-install gettext
+
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN docker-php-ext-install soap
 
 # Enable apache modules
 RUN a2enmod rewrite headers
@@ -69,8 +72,19 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install --fix-missin
     node -v && \
     npm -v
 
+# Create SSL Cert
+# Prepare fake SSL certificate
+RUN apt-get install -y ssl-cert
+
+# Setup Apache2 mod_ssl
+RUN a2enmod ssl
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
+
 # Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /usr/src/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /usr/src/* && rm awscliv2.zip
 
 # Configure volume/workdir
 WORKDIR /var/www/
